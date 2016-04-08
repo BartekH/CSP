@@ -60,8 +60,28 @@ def solve9x9ForwardChecking(grid):
 
 
 
-def solve9x9ForwardCheckingNew(grid, counter=0):
-    counter += 1
+def solve9x9ForwardCheckingGUI(grid, frame):
+
+    row, column = findUnassignedPlaces(grid)
+    if row == -2 and column == -2 :
+        showSolvedGrid(grid)
+        frame.dodaj(grid)
+        return True  # solution found!
+    actualDomain = getActualDomain(grid, row, column)
+    for proposedNumber in actualDomain:
+        grid[row,column] = proposedNumber
+        domainWipeOut = False
+        for variable in getUnassignedFromConstraints(grid.copy(), row, column):
+            if fc(variable.grid, variable.row, variable.column):
+                domainWipeOut = True
+                break
+        if not domainWipeOut:
+            solve9x9ForwardCheckingGUI(grid, frame)
+
+        grid[row,column] = 0
+
+def solve9x9ForwardCheckingCLI(grid):
+
     row, column = findUnassignedPlaces(grid)
     if row == -2 and column == -2 :
         showSolvedGrid(grid)
@@ -75,7 +95,7 @@ def solve9x9ForwardCheckingNew(grid, counter=0):
                 domainWipeOut = True
                 break
         if not domainWipeOut:
-            solve9x9ForwardCheckingNew(grid, counter)
+            solve9x9ForwardCheckingCLI(grid)
 
         grid[row,column] = 0
 
