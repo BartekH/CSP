@@ -7,17 +7,18 @@ sudokuSize = 9
 
 
 
-def solve9x9Backtracking(grid):
+def solve9x9Backtracking(grid, counter=0):
     row, column = findUnassignedPlaces(grid)
+    counter += 1
     if row == -2 and column == -2:
         showSolvedGrid(grid)
         return True  # solution found!
-
-    for proposedNumber in range(1, sudokuSize+1):
+    actualDomain = getActualDomain(grid, row, column)
+    for proposedNumber in actualDomain:
         if isCorrect(grid, row, column, proposedNumber):
             grid[row,column] = proposedNumber
 
-            if solve9x9Backtracking(grid):
+            if solve9x9Backtracking(grid,counter):
                 return True
             grid[row,column] = 0
     return False
@@ -57,7 +58,10 @@ def solve9x9ForwardChecking(grid):
 
 
 
-def solve9x9ForwardCheckingNew(grid):
+
+
+def solve9x9ForwardCheckingNew(grid, counter=0):
+    counter += 1
     row, column = findUnassignedPlaces(grid)
     if row == -2 and column == -2 :
         showSolvedGrid(grid)
@@ -71,7 +75,8 @@ def solve9x9ForwardCheckingNew(grid):
                 domainWipeOut = True
                 break
         if not domainWipeOut:
-            solve9x9ForwardCheckingNew(grid)
+            solve9x9ForwardCheckingNew(grid, counter)
+
         grid[row,column] = 0
 
 
