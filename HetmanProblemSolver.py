@@ -1,19 +1,60 @@
 
 
 
-def solveHetman(grid, queen):
+def solveHetmanBacktracking(grid, queen):
     if len(grid) == queen:
         print grid
         return True
     for row in range(0,len(grid)):
         if isCorrect(grid, row, queen):
             grid[row, queen] = 1
-            if solveHetman(grid, queen + 1):
+            if solveHetmanBacktracking(grid, queen + 1):
                 return True
             grid[row, queen] = 0
     return False
 
 
+
+
+
+
+
+
+def solveHetmanForwardChecking(grid, queen):
+    if len(grid) == queen:
+        print grid
+        return True
+    rowsProposition = getRowsProposition(grid, queen)
+    for row in rowsProposition:
+        grid[row, queen] = 1
+        domainWipeOut = False
+        for variable in getUnassignedFromConstraint(grid, queen):
+            if fc(grid, variable.row, variable.column):
+                domainWipeOut = True
+                break
+        if not domainWipeOut:
+            solveHetmanForwardChecking(grid, queen+1)
+        grid[row, queen] = 0
+
+
+
+
+def getUnassignedFromConstraint(grid, queen):
+    result = []
+    for row in range(len(grid)):
+        for col in range(queen+1, len(grid)):
+            if grid[row,col] == 0 and isCorrect(grid, row, col):
+                result.append(Unassigned(row, col))
+    return result
+
+
+def fc(grid, row, queen):
+    actualDomain = getRowsProposition(grid, queen)
+    tempDomain = list(actualDomain)
+    for propositionRow in actualDomain:
+        if not isCorrect(grid, propositionRow, queen):
+            tempDomain.remove(propositionRow)
+    return len(tempDomain) == 0
 
 
 
@@ -60,11 +101,15 @@ def isDiagonalCorrect(grid, row, column):
 
 
 
-def getActualDomain(grid):
-    pass
+def getRowsProposition(grid, queen):
+    resultDomain = []
+    for row in range(len(grid)):
+        if isCorrect(grid, row, queen):
+            resultDomain.append(row)
+    return resultDomain
 
 
-class ActualDomain:
+class Unassigned:
 
     def __init__(self, row, column):
         self.row = row
