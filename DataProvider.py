@@ -1,6 +1,8 @@
 import numpy as np
 from random import randint
 
+
+
 sudoku9x9 = np.matrix([[3, 1, 6, 5, 7, 8, 4, 9, 2]
                           , [5, 2, 9, 1, 3, 4, 7, 6, 8]
                           , [4, 8, 7, 6, 2, 9, 5, 3, 1]
@@ -12,7 +14,7 @@ sudoku9x9 = np.matrix([[3, 1, 6, 5, 7, 8, 4, 9, 2]
                           , [7, 4, 5, 2, 8, 6, 3, 1, 9]])
 
 sudoku9x9Normal = np.array([[0, 0, 0, 0, 0, 8, 4, 9, 2]
-                          , [5, 2, 9, 1, 3, 4, 7, 6, 8]
+                          , [5, 2, 0, 1, 3, 4, 7, 6, 8]
                           , [4, 0, 0, 0, 0, 9, 5, 3, 1]
                           , [2, 0, 3, 4, 1, 0, 0, 8, 7]
                           , [0, 0, 4, 0, 0, 0, 1, 2, 5]
@@ -37,3 +39,7 @@ def generateSudoku9x9(numberOfFields):
         col = randint(0,8)
         grid[row, col] = sudoku9x9[row,col]
     return grid
+
+
+def getHetmanGrid(N):
+    return np.array(np.zeros(shape = (N,N), dtype=int))
