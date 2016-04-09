@@ -33,7 +33,9 @@ def solveHetmanForwardChecking(grid, queen):
                 domainWipeOut = True
                 break
         if not domainWipeOut:
-            solveHetmanForwardChecking(grid, queen+1)
+             if solveHetmanForwardChecking(grid, queen+1):
+                 return True
+
         grid[row, queen] = 0
 
 
