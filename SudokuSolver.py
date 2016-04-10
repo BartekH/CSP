@@ -8,7 +8,7 @@ sudokuSize = 9
 
 
 def solve9x9Backtracking(grid, counter=0):
-    row, column = findUnassignedPlaces(grid)
+    row, column = findMostConstraintVariable(grid)
     counter += 1
     if row == -2 and column == -2:
         showSolvedGrid(grid)
@@ -22,41 +22,6 @@ def solve9x9Backtracking(grid, counter=0):
                 return True
             grid[row,column] = 0
     return False
-
-
-def forwardCheck(grid, row, column): # return False if does not have a conflict
-    loopIter = True
-    tempGrid = grid.copy()
-    while loopIter:
-        row, column = findUnassignedPlaces(tempGrid)
-        if row == -2 and column == -2:
-            return False
-        actualDomain = getActualDomain(tempGrid, row,column)
-        if actualDomain == []:
-            return True
-        else:
-            tempGrid[row,column] = actualDomain[0]
-
-
-
-
-def solve9x9ForwardChecking(grid):
-    row, column = findUnassignedPlaces(grid)
-    if row == -2 and column == -2:
-        showSolvedGrid(grid)
-        return True  # solution found!
-    actualDomain = getActualDomain(grid, row, column)
-    for proposedNumber in actualDomain:
-        if isCorrect(grid, row, column, proposedNumber):
-            grid[row,column] = proposedNumber
-            if forwardCheck(grid, row, column):
-                grid[row, column] = 0
-            if solve9x9ForwardChecking(grid):
-                return True
-            grid[row,column] = 0
-    return False
-
-
 
 
 
@@ -80,17 +45,45 @@ def solve9x9ForwardCheckingGUI(grid, frame):
 
         grid[row,column] = 0
 
+
+def calculateRateForElementInDomain(row, column, grid, proposedValue):
+    changesInNeighborElements = 0
+    sumDomainBefore = 0
+    sumDoaminAfter = 0
+    for neighbor in getUnassignedFromConstraints(grid, row, column):
+        sumDomainBefore += len(getActualDomain(grid, neighbor.row, neighbor.column))
+    grid[row, column] = proposedValue
+    for neighbor in getUnassignedFromConstraints(grid, row, column):
+        sumDoaminAfter += len(getActualDomain(grid, neighbor.row, neighbor.column))
+    return abs(sumDomainBefore - sumDoaminAfter)
+
+
+
+
+
+def getSortedDomain(grid, row, column):
+    actualDomain = getActualDomain(grid, row, column)
+    resultList = []
+    for elementInDomain in actualDomain:
+        resultList.append(DomainObject(row, column, calculateRateForElementInDomain(row, column, grid.copy(), elementInDomain), elementInDomain))
+    resultList.sort(key=lambda x: x.rate, reverse=True)
+    return resultList
+
+
+
 def solve9x9ForwardCheckingCLI(grid):
 
     row, column = findUnassignedPlaces(grid)
+    #row, column = findMostConstraintVariable(grid)
     if row == -2 and column == -2 :
         showSolvedGrid(grid)
         return True  # solution found!
-    actualDomain = getActualDomain(grid, row, column)
-    for proposedNumber in actualDomain:
-        grid[row,column] = proposedNumber
+    #actualDomain = getActualDomain(grid, row, column)
+    actualDomain = getSortedDomain(grid, row, column)
+    for proposedObjectFromDomain in actualDomain:
+        grid[proposedObjectFromDomain.row,proposedObjectFromDomain.column] = proposedObjectFromDomain.value
         domainWipeOut = False
-        for variable in getUnassignedFromConstraints(grid.copy(), row, column):
+        for variable in getUnassignedFromConstraints(grid.copy(), proposedObjectFromDomain.row, proposedObjectFromDomain.column):
             if fc(variable.grid, variable.row, variable.column):
                 domainWipeOut = True
                 break
@@ -99,6 +92,20 @@ def solve9x9ForwardCheckingCLI(grid):
 
         grid[row,column] = 0
 
+
+def findMostConstraintVariable(grid):
+    leastDomainPropositions = 9
+    resultRow = -2
+    resultCol = -2
+    for row in range(len(grid)):
+        for col in range(len(grid)):
+            if grid[row,col] == 0:
+                propositionValues = getActualDomain(grid, row, col)
+                if leastDomainPropositions > len(propositionValues):
+                    resultRow = row
+                    resultCol = col
+                    leastDomainPropositions = len(propositionValues)
+    return resultRow, resultCol
 
 def getUnassignedInRow(grid, row):
     result = []
@@ -220,6 +227,19 @@ class UnassignedVariableFromConstrain:
         self.row = row
         self.column = column
         self.grid = grid
+
+    def __eq__(self, other):
+        return self.row == other.row and self.column == other.column
+
+    def __hash__(self):
+        return hash(self.row) ^ hash(self.column)
+
+class DomainObject:
+    def __init__(self, row, column, rate,value):
+        self.row = row
+        self.column = column
+        self.rate = rate
+        self.value = value
 
     def __eq__(self, other):
         return self.row == other.row and self.column == other.column

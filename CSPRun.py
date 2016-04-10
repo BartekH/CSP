@@ -27,8 +27,10 @@ from GUI import App
 
 start = time.time()
 #solved = SudokuSolver.solve9x9Backtracking(DataProvider.sudoku9x9Normal)
-#solved = SudokuSolver.solve9x9ForwardCheckingCLI(DataProvider.sudoku9x9Normal)
-solved = HetmanProblemSolver.solveHetman(DataProvider.getHetmanGrid(8), 0)
+solved = SudokuSolver.solve9x9ForwardCheckingCLI(DataProvider.sudoku9x9Normal)
+#solved = HetmanProblemSolver.solveHetmanForwardChecking(DataProvider.getHetmanGrid(8), 0)
+#solved = HetmanProblemSolver.solveHetmanBacktracking(DataProvider.getHetmanGrid(8), 0)
+print solved
 end = time.time()
 print "Time = ", end-start
 
