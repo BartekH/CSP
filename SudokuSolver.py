@@ -5,7 +5,7 @@ from operator import or_
 sudokuSize = 9
 
 
-
+# -------------------- sudoku methods CLI ----------------------
 
 def solve9x9Backtracking(grid, counter=0):
     row, column = findMostConstraintVariable(grid)
@@ -23,69 +23,6 @@ def solve9x9Backtracking(grid, counter=0):
                 return True
             grid[row,column] = 0
     return False
-
-def solve9x9BacktrackingGUI(grid, frame):
-    row, column = findMostConstraintVariable(grid)
-    #row, column = findUnassignedPlaces(grid)
-    if row == -2 and column == -2:
-        showSolvedGrid(grid)
-        frame.dodaj(grid)
-        return True  # solution found!
-    actualDomain = getActualDomain(grid, row, column)
-    for proposedNumber in actualDomain:
-        if isCorrect(grid, row, column, proposedNumber):
-            grid[row,column] = proposedNumber
-
-            if solve9x9Backtracking(grid,frame):
-                return True
-            grid[row,column] = 0
-    return False
-
-
-
-def solve9x9ForwardCheckingGUI(grid, frame):
-
-    row, column = findUnassignedPlaces(grid)
-    if row == -2 and column == -2 :
-        showSolvedGrid(grid)
-        frame.dodaj(grid)
-        return True  # solution found!
-    actualDomain = getActualDomain(grid, row, column)
-    for proposedNumber in actualDomain:
-        grid[row,column] = proposedNumber
-        domainWipeOut = False
-        for variable in getUnassignedFromConstraints(grid.copy(), row, column):
-            if fc(variable.grid, variable.row, variable.column):
-                domainWipeOut = True
-                break
-        if not domainWipeOut:
-            if solve9x9ForwardCheckingGUI(grid, frame):
-                return True
-
-        grid[row,column] = 0
-
-
-def calculateRateForElementInDomain(row, column, grid, proposedValue):
-    changesInNeighborElements = 0
-    sumDomainBefore = 0
-    sumDoaminAfter = 0
-    for neighbor in getUnassignedFromConstraints(grid, row, column):
-        sumDomainBefore += len(getActualDomain(grid, neighbor.row, neighbor.column))
-    grid[row, column] = proposedValue
-    for neighbor in getUnassignedFromConstraints(grid, row, column):
-        sumDoaminAfter += len(getActualDomain(grid, neighbor.row, neighbor.column))
-    return abs(sumDomainBefore - sumDoaminAfter)
-
-
-
-def getSortedDomain(grid, row, column):
-    actualDomain = getActualDomain(grid, row, column)
-    resultList = []
-    for elementInDomain in actualDomain:
-        resultList.append(DomainObject(row, column, calculateRateForElementInDomain(row, column, grid.copy(), elementInDomain), elementInDomain))
-    resultList.sort(key=lambda x: x.rate, reverse=True)
-    return resultList
-
 
 
 def solve9x9ForwardCheckingCLI(grid):
@@ -128,6 +65,29 @@ def solve9x9ForwardCheckingCLIHeurisctic(grid):
             solve9x9ForwardCheckingCLI(grid)
 
         grid[row,column] = 0
+
+# ------------------------------- helpers ------------------------------------
+
+def calculateRateForElementInDomain(row, column, grid, proposedValue):
+    changesInNeighborElements = 0
+    sumDomainBefore = 0
+    sumDoaminAfter = 0
+    for neighbor in getUnassignedFromConstraints(grid, row, column):
+        sumDomainBefore += len(getActualDomain(grid, neighbor.row, neighbor.column))
+    grid[row, column] = proposedValue
+    for neighbor in getUnassignedFromConstraints(grid, row, column):
+        sumDoaminAfter += len(getActualDomain(grid, neighbor.row, neighbor.column))
+    return abs(sumDomainBefore - sumDoaminAfter)
+
+
+
+def getSortedDomain(grid, row, column):
+    actualDomain = getActualDomain(grid, row, column)
+    resultList = []
+    for elementInDomain in actualDomain:
+        resultList.append(DomainObject(row, column, calculateRateForElementInDomain(row, column, grid.copy(), elementInDomain), elementInDomain))
+    resultList.sort(key=lambda x: x.rate, reverse=True)
+    return resultList
 
 
 def findMostConstraintVariable(grid):
@@ -257,6 +217,51 @@ def isCorrectInBox(grid, rowStart, columnStart, proposedNumber):
 def showSolvedGrid(grid):
     print grid
 
+
+# ------------------------------------ special GUI methods -----------------------------------------
+
+def solve9x9BacktrackingGUI(grid, frame):
+    row, column = findMostConstraintVariable(grid)
+    #row, column = findUnassignedPlaces(grid)
+    if row == -2 and column == -2:
+        showSolvedGrid(grid)
+        frame.dodaj(grid)
+        return True  # solution found!
+    actualDomain = getActualDomain(grid, row, column)
+    for proposedNumber in actualDomain:
+        if isCorrect(grid, row, column, proposedNumber):
+            grid[row,column] = proposedNumber
+
+            if solve9x9Backtracking(grid,frame):
+                return True
+            grid[row,column] = 0
+    return False
+
+
+
+def solve9x9ForwardCheckingGUI(grid, frame):
+
+    row, column = findUnassignedPlaces(grid)
+    if row == -2 and column == -2 :
+        showSolvedGrid(grid)
+        frame.dodaj(grid)
+        return True  # solution found!
+    actualDomain = getActualDomain(grid, row, column)
+    for proposedNumber in actualDomain:
+        grid[row,column] = proposedNumber
+        domainWipeOut = False
+        for variable in getUnassignedFromConstraints(grid.copy(), row, column):
+            if fc(variable.grid, variable.row, variable.column):
+                domainWipeOut = True
+                break
+        if not domainWipeOut:
+            if solve9x9ForwardCheckingGUI(grid, frame):
+                return True
+
+        grid[row,column] = 0
+
+
+# ----------------------------------- utils classes -------------------------------
 
 class UnassignedVariableFromConstrain:
 

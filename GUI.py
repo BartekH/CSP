@@ -50,8 +50,8 @@ class SudokuUI(Frame):
 
         var1 = IntVar()
         Checkbutton(self, text="Sudoku", variable=var1).pack(side=LEFT)
-        var2 = IntVar()
-        Checkbutton(self, text="N Queens", variable=var2).pack(side=LEFT)
+        self.var2 = IntVar()
+        Checkbutton(self, text="N Queens", variable=self.var2).pack(side=LEFT)
         self.entry = Entry(self)
         self.entry.pack(side=LEFT)
 
@@ -70,9 +70,15 @@ class SudokuUI(Frame):
 
     def __loadData(self):
         if self.entry.get() != '':
-            gridNumber = int(self.entry.get())
-            self.grid = DataProvider.generateSudoku9x9(gridNumber)
-            self.__draw_puzzle(self.grid)
+            if self.var2.get() == 1:
+                gridNumber = int(self.entry.get())
+                self.grid = DataProvider.getHetmanGrid(gridNumber)
+                self.__draw_grid(len(self.grid))
+                self.__draw_puzzle(self.grid)
+            else:
+                gridNumber = int(self.entry.get())
+                self.grid = DataProvider.generateSudoku9x9(gridNumber)
+                self.__draw_puzzle(self.grid)
 
 
     def __solve(self):
@@ -118,6 +124,7 @@ class SudokuUI(Frame):
                     self.canvas.create_text(
                         x, y, text=answer, tags="numbers", fill=color
                     )
+
     def dodaj(self, grid):
         self.canvas.delete("numbers")
         for i in xrange(9):

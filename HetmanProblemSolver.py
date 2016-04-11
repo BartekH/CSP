@@ -1,18 +1,6 @@
-def getRowsList(grid, column):
-    rowsProposition = getRowsProposition(grid, column)
-
-def getBestColumn(grid):
-    bestColumn = 0
-    bestRowsProposition = 0
-    for col in range(len(grid)):
-        rowsProposition = getRowsProposition(grid, col)
-        if len(rowsProposition) >= bestRowsProposition:
-            bestRowsProposition = len(rowsProposition)
-            bestColumn = col
-    return bestColumn
 
 
-
+# ---------------------- N queens methods ----------------------------
 def solveHetmanBacktracking(grid, queen):
     if len(grid) == queen:
         print grid
@@ -76,8 +64,20 @@ def solveHetmanForwardCheckingHeuristic(grid, queen):
 
         grid[row.row, queen] = 0
 
+# -------------------------- utils methods --------------------------------
 
+def getRowsList(grid, column):
+    rowsProposition = getRowsProposition(grid, column)
 
+def getBestColumn(grid):
+    bestColumn = 0
+    bestRowsProposition = 0
+    for col in range(len(grid)):
+        rowsProposition = getRowsProposition(grid, col)
+        if len(rowsProposition) >= bestRowsProposition:
+            bestRowsProposition = len(rowsProposition)
+            bestColumn = col
+    return bestColumn
 
 def getUnassignedFromConstraint(grid, queen):
     result = []
@@ -160,6 +160,8 @@ def getHeuristicRowsProposition(grid, queen):
 
 def rateForHeuristic(grid, queen):
     return len(getRowsProposition(grid, queen))
+
+# -------------------------------- utils classes -----------------------------------
 
 class HeuristicRow:
 
