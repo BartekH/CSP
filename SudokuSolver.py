@@ -9,6 +9,7 @@ sudokuSize = 9
 
 def solve9x9Backtracking(grid, counter=0):
     row, column = findMostConstraintVariable(grid)
+    #row, column = findUnassignedPlaces(grid)
     counter += 1
     if row == -2 and column == -2:
         showSolvedGrid(grid)
@@ -59,8 +60,6 @@ def calculateRateForElementInDomain(row, column, grid, proposedValue):
 
 
 
-
-
 def getSortedDomain(grid, row, column):
     actualDomain = getActualDomain(grid, row, column)
     resultList = []
@@ -73,8 +72,28 @@ def getSortedDomain(grid, row, column):
 
 def solve9x9ForwardCheckingCLI(grid):
 
-    row, column = findUnassignedPlaces(grid)
-    #row, column = findMostConstraintVariable(grid)
+    #row, column = findUnassignedPlaces(grid)
+    row, column = findMostConstraintVariable(grid)
+    if row == -2 and column == -2 :
+        showSolvedGrid(grid)
+        return True  # solution found!
+    actualDomain = getActualDomain(grid, row, column)
+    for proposedObjectFromDomain in actualDomain:
+        grid[row,column] = proposedObjectFromDomain
+        domainWipeOut = False
+        for variable in getUnassignedFromConstraints(grid.copy(), row, column):
+            if fc(variable.grid, variable.row, variable.column):
+                domainWipeOut = True
+                break
+        if not domainWipeOut:
+            if solve9x9ForwardCheckingCLI(grid):
+                return True
+        grid[row,column] = 0
+
+def solve9x9ForwardCheckingCLIHeurisctic(grid):
+
+    #row, column = findUnassignedPlaces(grid)
+    row, column = findMostConstraintVariable(grid)
     if row == -2 and column == -2 :
         showSolvedGrid(grid)
         return True  # solution found!
