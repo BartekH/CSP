@@ -1,7 +1,7 @@
 import threading
 import DataProvider
 import SudokuSolver
-from Tkinter import Tk, Canvas, Frame, Button, BOTH, TOP, BOTTOM, LEFT
+from Tkinter import Tk, Canvas, Frame, Button, BOTH, TOP, BOTTOM, LEFT, IntVar, Checkbutton, Entry, RIGHT
 
 
 class App(threading.Thread):
@@ -47,18 +47,36 @@ class SudokuUI(Frame):
         self.canvas.pack(fill=BOTH, side=TOP)
         clear_button = Button(self,
                               text="Clear answers" )
+
+        var1 = IntVar()
+        Checkbutton(self, text="Sudoku", variable=var1).pack(side=LEFT)
+        var2 = IntVar()
+        Checkbutton(self, text="N Queens", variable=var2).pack(side=LEFT)
+        self.entry = Entry(self)
+        self.entry.pack(side=LEFT)
+
+
         solve_button = Button(self, text="Solve!", command=self.__solve)
+        load_Button = Button(self, text="Load data", command=self.__loadData)
+        load_Button.pack(side=RIGHT)
         solve_button.pack(side=LEFT)
         clear_button.pack(fill=BOTH, side=BOTTOM)
 
-        self.__draw_grid()
+        self.__draw_grid(10)
         self.__draw_puzzle(grid)
 
         self.canvas.bind("<Button-1>", self.__cell_clicked)
         self.canvas.bind("<Key>", self.__key_pressed)
 
+    def __loadData(self):
+        if self.entry.get() != '':
+            gridNumber = int(self.entry.get())
+            self.grid = DataProvider.generateSudoku9x9(gridNumber)
+            self.__draw_puzzle(self.grid)
+
+
     def __solve(self):
-        SudokuSolver.solve9x9ForwardCheckingGUI(DataProvider.sudoku9x9Normal, self)
+        SudokuSolver.solve9x9ForwardCheckingGUI(self.grid, self)
 
     def __cell_clicked(self, event):
         pass
@@ -66,13 +84,13 @@ class SudokuUI(Frame):
     def __key_pressed(self, event):
         pass
 
-    def __draw_grid(self):
+    def __draw_grid(self, gridSize):
         """
         Draws grid divided with blue lines into 3x3 squares
         """
         WIDTH = 455
         HEIGHT = 455
-        for i in xrange(10):
+        for i in range(gridSize):
             color = "blue" if i % 3 == 0 else "gray"
 
             x0 = self.MARGIN + i * self.SIDE
