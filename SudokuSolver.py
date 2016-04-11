@@ -24,6 +24,23 @@ def solve9x9Backtracking(grid, counter=0):
             grid[row,column] = 0
     return False
 
+def solve9x9BacktrackingGUI(grid, frame):
+    row, column = findMostConstraintVariable(grid)
+    #row, column = findUnassignedPlaces(grid)
+    if row == -2 and column == -2:
+        showSolvedGrid(grid)
+        frame.dodaj(grid)
+        return True  # solution found!
+    actualDomain = getActualDomain(grid, row, column)
+    for proposedNumber in actualDomain:
+        if isCorrect(grid, row, column, proposedNumber):
+            grid[row,column] = proposedNumber
+
+            if solve9x9Backtracking(grid,frame):
+                return True
+            grid[row,column] = 0
+    return False
+
 
 
 def solve9x9ForwardCheckingGUI(grid, frame):
@@ -42,7 +59,8 @@ def solve9x9ForwardCheckingGUI(grid, frame):
                 domainWipeOut = True
                 break
         if not domainWipeOut:
-            solve9x9ForwardCheckingGUI(grid, frame)
+            if solve9x9ForwardCheckingGUI(grid, frame):
+                return True
 
         grid[row,column] = 0
 
