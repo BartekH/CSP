@@ -1,6 +1,7 @@
 import threading
 import DataProvider
 import SudokuSolver
+
 from Tkinter import Tk, Canvas, Frame, Button, BOTH, TOP, BOTTOM, LEFT, IntVar, Checkbutton, Entry, RIGHT
 
 

@@ -24,6 +24,22 @@ def solve9x9Backtracking(grid, counter=0):
             grid[row,column] = 0
     return False
 
+def solve9x9BacktrackingHeuritic(grid, counter=0):
+    #row, column = findMostConstraintVariable(grid)
+    row, column = findUnassignedPlaces(grid)
+    counter += 1
+    if row == -2 and column == -2:
+        showSolvedGrid(grid)
+        return True  # solution found!
+    actualDomain = getSortedDomain(grid, row, column)
+    for proposedNumber in actualDomain:
+        # if isCorrect(grid, proposedNumber.row, proposedNumber.column, proposedNumber.value):
+            grid[proposedNumber.row,proposedNumber.column] = proposedNumber.value
+            if solve9x9BacktrackingHeuritic(grid,counter):
+                return True
+            grid[proposedNumber.row,proposedNumber.column] = 0
+    return False
+
 
 def solve9x9ForwardCheckingCLI(grid):
 
@@ -62,12 +78,13 @@ def solve9x9ForwardCheckingCLIHeurisctic(grid):
                 domainWipeOut = True
                 break
         if not domainWipeOut:
-            solve9x9ForwardCheckingCLI(grid)
+            if solve9x9ForwardCheckingCLIHeurisctic(grid):
+                return True
 
         grid[row,column] = 0
 
 # ------------------------------- helpers ------------------------------------
-
+# ocena elementu z dziedziny - po wstawieniu tej wartosci najmniej zmieni dziedzine elementow nieoznaczonych z ograniczen
 def calculateRateForElementInDomain(row, column, grid, proposedValue):
     changesInNeighborElements = 0
     sumDomainBefore = 0
@@ -90,8 +107,8 @@ def getSortedDomain(grid, row, column):
     return resultList
 
 
-def findMostConstraintVariable(grid):
-    leastDomainPropositions = 9
+def  findMostConstraintVariable(grid):
+    leastDomainPropositions = len(grid)+1
     resultRow = -2
     resultCol = -2
     for row in range(len(grid)):
@@ -137,10 +154,27 @@ def getUnassignedInSquare(grid, rowStart, columnStart):
     return set(result)
 
 
+def getUnassignedInSquare4x4(grid, rowStart, columnStart):
+    result = []
+    if rowStart == 0:
+        rowStart = 1
+    if columnStart == 0:
+        columnStart = 1
+    for row in range(0,4):
+        for col in range(0,4):
+            if grid[rowStart+row,columnStart+col] == 0:
+                result.append(UnassignedVariableFromConstrain(row+rowStart, col+columnStart, grid.copy()))
+    return set(result)
+
+
 def getUnassignedFromConstraints(grid, row, column):
+    unassignedInSquare = []
+    if len(grid) == 16:
+        unassignedInSquare = getUnassignedInSquare4x4(grid, row - row%4, column - column%4)
+    else:
+        unassignedInSquare = getUnassignedInSquare(grid, row - row%3, column - column%3)
     unassignedInRow = getUnassignedInRow(grid,row)
     unassignedInColumn = getUnassignedInColumn(grid, column)
-    unassignedInSquare = getUnassignedInSquare(grid, row - row%3, column - column%3)
     unassigneds = unassignedInSquare.symmetric_difference(unassignedInColumn)
     unassigneds = unassigneds.symmetric_difference(unassignedInRow)
     return unassigneds
@@ -155,14 +189,24 @@ def fc(grid, row, column):
     return len(domainCopy) == 0
 
 
-
+def getSquare4x4(grid, row, column):
+    squareDomain = []
+    tempIter = 1
+    for tempRow in range(row, row+4):
+        for tempCol in range(column, column+4):
+            squareDomain.append(grid[tempRow, tempCol])
+    return set(squareDomain)
 
 
 def getActualDomain(grid, row, column):
-    resultList = set(range(1,10))
+    resultList = set(range(1,len(grid)+1))
     wholeRow = set(grid[row,:])- set([0])
     wholeColumn = set(grid[:,column])- set([0])
-    wholeSquare = getSquare(grid, row - row%3, column - column%3) - set([0])
+    wholeSquare = []
+    if len(grid) == 16:
+        wholeSquare = getSquare4x4(grid, row - row%4, column - column%4) - set([0])
+    else:
+        wholeSquare = getSquare(grid, row - row%3, column - column%3) - set([0])
     reducedEliminatedSet = reduce(or_, [wholeRow, wholeColumn, wholeSquare])
     resultList = resultList.symmetric_difference(reducedEliminatedSet)
     return list(resultList)
@@ -179,17 +223,22 @@ def getSquare(grid, row, column):
 
 
 def findUnassignedPlaces(grid):
-    for row in range(0, sudokuSize):
-        for col in range(0, sudokuSize):
+    for row in range(0, len(grid)):
+        for col in range(0, len(grid)):
             if grid[row, col] == 0:
                 return row, col
     return -2, -2
 
 
 def isCorrect(grid, row, column, proposedNumber):
+    correctInBox = False
+    if len(grid) == 16:
+        correctInBox = isCorrectInBox(grid, row - row%4, column - column%4, proposedNumber)
+    else:
+        correctInBox = isCorrectInBox(grid, row - row%3, column - column%3, proposedNumber)
     return isCorrectInRow(grid, row, proposedNumber) \
            and isCorrectInColumn(grid, column, proposedNumber) \
-           and isCorrectInBox(grid, row - row%3, column - column%3, proposedNumber)
+           and correctInBox
 
 
 

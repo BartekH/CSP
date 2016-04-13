@@ -43,7 +43,6 @@ def solveHetmanForwardChecking(grid, queen):
         if not domainWipeOut:
              if solveHetmanForwardChecking(grid, queen+1):
                  return True
-
         grid[row, queen] = 0
 
 def solveHetmanForwardCheckingHeuristic(grid, queen):
@@ -59,9 +58,8 @@ def solveHetmanForwardCheckingHeuristic(grid, queen):
                 domainWipeOut = True
                 break
         if not domainWipeOut:
-             if solveHetmanForwardChecking(grid, queen+1):
+             if solveHetmanForwardCheckingHeuristic(grid, queen+1):
                  return True
-
         grid[row.row, queen] = 0
 
 # -------------------------- utils methods --------------------------------
