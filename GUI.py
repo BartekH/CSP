@@ -73,7 +73,7 @@ class SudokuUI(Frame):
         if self.entry.get() != '':
             if self.var2.get() == 1:
                 gridNumber = int(self.entry.get())
-                self.grid = DataProvider.getHetmanGrid(gridNumber)
+                self.grid = DataProvider.getNQueensGrid(gridNumber)
                 self.__draw_grid(len(self.grid))
                 self.__draw_puzzle(self.grid)
             else:

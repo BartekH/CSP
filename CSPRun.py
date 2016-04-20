@@ -10,7 +10,7 @@ def runTestsNQueens(N):
     timeResults = []
     for n in range(8,N):
         start = time.time()
-        solved = NQueensSolver.solveNQueensForwardChecking(DataProvider.getHetmanGrid(n), 0)
+        solved = NQueensSolver.solveNQueensForwardChecking(DataProvider.getNQueensGrid(n), 0)
         end = time.time()
         timeResults.append(end-start)
         print "iteration number", n

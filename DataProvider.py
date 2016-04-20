@@ -76,5 +76,5 @@ def generateSudoku16x16(numberOfFields):
     return grid
 
 
-def getHetmanGrid(N):
+def getNQueensGrid(N):
     return np.array(np.zeros(shape = (N,N), dtype=int))
