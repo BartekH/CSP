@@ -2,14 +2,13 @@ import numpy
 import numpy as np
 from operator import or_
 
-sudokuSize = 9
 
 
-# -------------------- sudoku methods CLI ----------------------
 
-def solve9x9Backtracking(grid, counter=0):
-    row, column = findMostConstraintVariable(grid)
-    #row, column = findUnassignedPlaces(grid)
+# -------------------- sudoku functions from CLI ----------------------
+
+def solveBacktracking(grid, counter=0):
+    row, column = findUnassignedPlaces(grid)
     counter += 1
     if row == -2 and column == -2:
         showSolvedGrid(grid)
@@ -19,31 +18,28 @@ def solve9x9Backtracking(grid, counter=0):
         if isCorrect(grid, row, column, proposedNumber):
             grid[row,column] = proposedNumber
 
-            if solve9x9Backtracking(grid,counter):
+            if solveBacktracking(grid, counter):
                 return True
             grid[row,column] = 0
     return False
 
-def solve9x9BacktrackingHeuritic(grid, counter=0):
-    #row, column = findMostConstraintVariable(grid)
-    row, column = findUnassignedPlaces(grid)
+def solveBacktrackingHeuritic(grid, counter=0):
+    row, column = findMostConstraintVariable(grid)
     counter += 1
     if row == -2 and column == -2:
         showSolvedGrid(grid)
         return True  # solution found!
     actualDomain = getSortedDomain(grid, row, column)
     for proposedNumber in actualDomain:
-        # if isCorrect(grid, proposedNumber.row, proposedNumber.column, proposedNumber.value):
-            grid[proposedNumber.row,proposedNumber.column] = proposedNumber.value
-            if solve9x9BacktrackingHeuritic(grid,counter):
-                return True
-            grid[proposedNumber.row,proposedNumber.column] = 0
+        grid[proposedNumber.row,proposedNumber.column] = proposedNumber.value
+        if solveBacktrackingHeuritic(grid, counter):
+            return True
+        grid[proposedNumber.row,proposedNumber.column] = 0
     return False
 
 
-def solve9x9ForwardCheckingCLI(grid):
+def solveForwardCheckingCLI(grid):
 
-    #row, column = findUnassignedPlaces(grid)
     row, column = findMostConstraintVariable(grid)
     if row == -2 and column == -2 :
         showSolvedGrid(grid)
@@ -57,11 +53,11 @@ def solve9x9ForwardCheckingCLI(grid):
                 domainWipeOut = True
                 break
         if not domainWipeOut:
-            if solve9x9ForwardCheckingCLI(grid):
+            if solveForwardCheckingCLI(grid):
                 return True
         grid[row,column] = 0
 
-def solve9x9ForwardCheckingCLIHeurisctic(grid):
+def solveForwardCheckingCLIHeurisctic(grid):
 
     #row, column = findUnassignedPlaces(grid)
     row, column = findMostConstraintVariable(grid)
@@ -78,15 +74,13 @@ def solve9x9ForwardCheckingCLIHeurisctic(grid):
                 domainWipeOut = True
                 break
         if not domainWipeOut:
-            if solve9x9ForwardCheckingCLIHeurisctic(grid):
+            if solveForwardCheckingCLIHeurisctic(grid):
                 return True
 
         grid[row,column] = 0
 
 # ------------------------------- helpers ------------------------------------
-# ocena elementu z dziedziny - po wstawieniu tej wartosci najmniej zmieni dziedzine elementow nieoznaczonych z ograniczen
 def calculateRateForElementInDomain(row, column, grid, proposedValue):
-    changesInNeighborElements = 0
     sumDomainBefore = 0
     sumDoaminAfter = 0
     for neighbor in getUnassignedFromConstraints(grid, row, column):
@@ -168,7 +162,6 @@ def getUnassignedInSquare4x4(grid, rowStart, columnStart):
 
 
 def getUnassignedFromConstraints(grid, row, column):
-    unassignedInSquare = []
     if len(grid) == 16:
         unassignedInSquare = getUnassignedInSquare4x4(grid, row - row%4, column - column%4)
     else:
@@ -191,7 +184,6 @@ def fc(grid, row, column):
 
 def getSquare4x4(grid, row, column):
     squareDomain = []
-    tempIter = 1
     for tempRow in range(row, row+4):
         for tempCol in range(column, column+4):
             squareDomain.append(grid[tempRow, tempCol])
@@ -202,7 +194,6 @@ def getActualDomain(grid, row, column):
     resultList = set(range(1,len(grid)+1))
     wholeRow = set(grid[row,:])- set([0])
     wholeColumn = set(grid[:,column])- set([0])
-    wholeSquare = []
     if len(grid) == 16:
         wholeSquare = getSquare4x4(grid, row - row%4, column - column%4) - set([0])
     else:
@@ -213,7 +204,6 @@ def getActualDomain(grid, row, column):
 
 def getSquare(grid, row, column):
     squareDomain = []
-    tempIter = 1
     for tempRow in range(row, row+3):
         for tempCol in range(column, column+3):
             squareDomain.append(grid[tempRow, tempCol])
@@ -243,14 +233,14 @@ def isCorrect(grid, row, column, proposedNumber):
 
 
 def isCorrectInRow(grid, row,  proposedNumber):
-    for col in range(0, sudokuSize):
+    for col in range(0, len(grid)):
         if grid[row,col] == proposedNumber:
             return False
     return True
 
 
 def isCorrectInColumn(grid,  column, proposedNumber):
-    for row in range(0, sudokuSize):
+    for row in range(0, len(grid)):
         if grid[row,column] == proposedNumber:
             return False
     return True
@@ -281,7 +271,7 @@ def solve9x9BacktrackingGUI(grid, frame):
         if isCorrect(grid, row, column, proposedNumber):
             grid[row,column] = proposedNumber
 
-            if solve9x9Backtracking(grid,frame):
+            if solveBacktracking(grid, frame):
                 return True
             grid[row,column] = 0
     return False

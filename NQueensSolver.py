@@ -1,7 +1,7 @@
 
 
 # ---------------------- N queens methods ----------------------------
-def solveHetmanBacktracking(grid, queen):
+def solveNQueensBacktracking(grid, queen):
     if len(grid) == queen:
         print grid
         return True
@@ -9,12 +9,12 @@ def solveHetmanBacktracking(grid, queen):
     for row in rowsProposition:
         if isCorrect(grid, row, queen):
             grid[row, queen] = 1
-            if solveHetmanBacktracking(grid, queen + 1):
+            if solveNQueensBacktracking(grid, queen + 1):
                 return True
             grid[row, queen] = 0
     return False
 
-def solveHetmanBacktrackingHeuristic(grid, queen):
+def solveNQueensBacktrackingHeuristic(grid, queen):
     if len(grid) == queen:
         print grid
         return True
@@ -22,13 +22,13 @@ def solveHetmanBacktrackingHeuristic(grid, queen):
     for row in rowsProposition:
         if isCorrect(grid, row.row, queen):
             grid[row.row, queen] = 1
-            if solveHetmanBacktracking(grid, queen + 1):
+            if solveNQueensBacktrackingHeuristic(grid, queen + 1):
                 return True
             grid[row.row, queen] = 0
     return False
 
 
-def solveHetmanForwardChecking(grid, queen):
+def solveNQueensForwardChecking(grid, queen):
     if len(grid) == queen:
         print grid
         return True
@@ -41,11 +41,11 @@ def solveHetmanForwardChecking(grid, queen):
                 domainWipeOut = True
                 break
         if not domainWipeOut:
-             if solveHetmanForwardChecking(grid, queen+1):
+             if solveNQueensForwardChecking(grid, queen + 1):
                  return True
         grid[row, queen] = 0
 
-def solveHetmanForwardCheckingHeuristic(grid, queen):
+def solveNQueensForwardCheckingHeuristic(grid, queen):
     if len(grid) == queen:
         print grid
         return True
@@ -58,24 +58,12 @@ def solveHetmanForwardCheckingHeuristic(grid, queen):
                 domainWipeOut = True
                 break
         if not domainWipeOut:
-             if solveHetmanForwardCheckingHeuristic(grid, queen+1):
+             if solveNQueensForwardCheckingHeuristic(grid, queen + 1):
                  return True
         grid[row.row, queen] = 0
 
 # -------------------------- utils methods --------------------------------
 
-def getRowsList(grid, column):
-    rowsProposition = getRowsProposition(grid, column)
-
-def getBestColumn(grid):
-    bestColumn = 0
-    bestRowsProposition = 0
-    for col in range(len(grid)):
-        rowsProposition = getRowsProposition(grid, col)
-        if len(rowsProposition) >= bestRowsProposition:
-            bestRowsProposition = len(rowsProposition)
-            bestColumn = col
-    return bestColumn
 
 def getUnassignedFromConstraint(grid, queen):
     result = []

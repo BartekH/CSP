@@ -92,9 +92,6 @@ class SudokuUI(Frame):
         pass
 
     def __draw_grid(self, gridSize):
-        """
-        Draws grid divided with blue lines into 3x3 squares
-        """
         WIDTH = 455
         HEIGHT = 455
         for i in range(gridSize):
